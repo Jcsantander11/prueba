@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Quiz App',
-      home: QuizPage(),
+      home: QuizPage(), 
     );
   }
 }
@@ -17,249 +20,436 @@ class QuizPage extends StatefulWidget {
   _QuizPageState createState() => _QuizPageState();
 }
 
-//CLASE PREGUNTAS 
 class _QuizPageState extends State<QuizPage> {
   int _currentQuestionIndex = 0;
-  int? _selectedAnswerIndex = 0;
-  _QuizPageState();
-  List<Question> _questions = [
-    Question(
-      '¿Cuál es el numero que observas en pantalla?',
-      ['8', '6', '3', '9'],
-      0,
-    ),
-    Question(
-      '¿Cuál es el numero que observas en pantalla?',
-      ['8', '6', '3', '9'],
-      1,
-    ),
-    Question(
-      '¿Cuál es el numero que observas en pantalla?',
-      ['8', '6', '3', '9'],
-      2,
-    ),
-    Question(
-      '¿Cuál es el numero que observas en pantalla?',
-      ['8', '6', '3', '9'],
-      3,
-    ),
-    ];
+  int _correctAnswers = 0;
+  bool _isAnswerCorrect = false;
+  bool _isQuizFinished = false;
 
-  //APPBAR DEL CUESTIONARIO
-  @override
-  Widget build(BuildContext context) {
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('COLOR BLINDNESS TEST', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
-        centerTitle: true,
+  final List<Question> questions = [
+    //LAMINAS DE PATRON DE TRANSFORMACION 
+    //PERSONAS CON VISION NORMAL VERAN UN NUMERO
+    //PERSONAS CON DISCROMATOPSIA CONGENITA (COLOR VERDE Y ROJO) VERAN UN NUMERO DIFERENTE
+    //
+    //HACER LAS CONDICIONALES DE LA SIGUIENTE MANERA: 
+    //1) SI LA PERSONA SE EQUIVOCA EN POR LO MENOS EN UN TIENE 
+    //PROBLEMAS EN DETECTAR EL COLOR VERDE Y ROJO
+    //2) SI LA PERSONA SE EQUIVOCA EN TODAS TIENE CEGERA TOTAL
+    //3) SI LA PERSONA ACIERTA TODAS, NO TIENE NINGUN PROBLEMA DE DALTONISMO\\
+    Question(
+      image: 'assets/images/2.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['8', '3', '6', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/12.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['82', '97', '31', 'Ninguno'],
+      correctOption: 1,
+    ),
+    Question(
+      image: 'assets/images/10.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['1', '7', '2', 'Ninguno'],
+      correctOption: 2,
+    ),
+    Question(
+      image: 'assets/images/13.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['48', '13', '45', 'Ninguno'],
+      correctOption: 2,
+    ),
+    Question(
+      image: 'assets/images/5.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['57', '35', '65', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/11.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['6', '8', '5', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/8.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['17', '15', '73', 'Ninguno'],
+      correctOption: 1,
+    ),
+    Question(
+      image: 'assets/images/14.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['2', '5', '3', 'Ninguno'],
+      correctOption: 1,
+    ),
+        Question(
+      image: 'assets/images/16.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['16', '75', '18', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/6.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['5', '2', '3', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/15.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['1', '7', '2', 'Ninguno'],
+      correctOption: 1,
+    ),
+    Question(
+      image: 'assets/images/9.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['74', '24', '21', 'Ninguno'],
+      correctOption: 0,
+    ),
+    Question(
+      image: 'assets/images/7.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['8', '5', '3', 'Ninguno'],
+      correctOption: 2,
+    ),
+    Question(
+      image: 'assets/images/4.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['73', '70', '29', 'Ninguno'],
+      correctOption: 2,
+    ),
+    Question(
+      image: 'assets/images/17.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['58', '15', '73', 'Ninguno'],
+      correctOption: 2,
+    ),
+    Question(
+      image: 'assets/images/3.jpg',
+      text: '¿Que numero logras observar en pantalla?',
+      options: ['5', '6', '8', 'Ninguno'],
+      correctOption: 1,
+    ),
+  ];
+
+  //----
+void _checkAnswer(int selectedOptionIndex) {
+    if (selectedOptionIndex == questions[_currentQuestionIndex].correctOption) {
+      _isAnswerCorrect = true;
+      _correctAnswers++;
+    } else {
+      _isAnswerCorrect = false;
+    }
+  }
+
+  void _nextQuestion() {
+    if (_currentQuestionIndex < questions.length - 1) {
+      _currentQuestionIndex++;
+    } else {
+      _isQuizFinished = true;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultsPage(
+            correctAnswers: _correctAnswers,
+            totalQuestions: questions.length,
+          ),
+        ),
+      );
+    }
+  }
+
+  //-------------------
+
+  void _answerQuestion(int selectedOptionIndex) {
+    if (selectedOptionIndex == questions[_currentQuestionIndex].correctOption) {
+      setState(() {
+        _correctAnswers++;
+      });
+      _showSnackBar('✓');
+    } else {
+      _showSnackBar('✘');
+    }
+
+    if (_currentQuestionIndex == questions.length - 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultsPage(
+            correctAnswers: _correctAnswers,
+            totalQuestions: questions.length,
+          ),
+        ),
+      );
+    } else {
+      setState(() {
+        _currentQuestionIndex++;
+      });
+    }
+  }
+  
+//---------------------------------------------
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+
+      //SNACK VENTANA EMERGENTE RESPUESTA
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ), textAlign: TextAlign.center,
+        ),
+        duration: Duration(milliseconds: 250),
+        backgroundColor: Colors.blueGrey[300],
       ),
+    );
+  }
+//---------------------------------------------
 
-      //CUERPO CUESTIONARIO
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+  @override
+  
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
 
-          //Container Imagen QUIZ
-          Container(
-            margin: EdgeInsets.only(bottom: 25),
-            child: Image.asset('assets/2.png', width: 350,height: 300,),
+      //TITULO QUIZ
+      appBar: AppBar(
+        title: Text(
+          'COLOR BLINDNESS TEST',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          
-          //Container pregunta QUIZ
-          Container(
-            margin: EdgeInsets.all(12),
-              child: Text(
-                _questions[_currentQuestionIndex].question,
-                style: TextStyle(fontSize: 25),
-            ),
-          ),
-          
-          //CAJA RESPUESTAS (4)
-         Container(
-            margin: EdgeInsets.only(left: 50, bottom: 20),
-            child: Column(
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        ),
+
+
+      //CUERPO QUIZ
+      body: _currentQuestionIndex < questions.length
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  children: _questions[_currentQuestionIndex]
-                      .answers
-                      .asMap()
-                      .entries
-                      .where((entry) => entry.key < (_questions[_currentQuestionIndex].answers.length / 2).ceil())
-                      .map(
-                        (entry) => Expanded(
-                          child: RadioListTile(
-                            title: Text(
-                              entry.value,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            value: entry.key,
-                            groupValue: _selectedAnswerIndex,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedAnswerIndex = value;
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                      .toList(),
+
+                //CONTAINER IMAGEN QUIZ
+                Container(
+                  margin: EdgeInsets.fromLTRB(30, 30, 30, 0),
+                  child: Image.asset(
+                    questions[_currentQuestionIndex].image,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                Row(
-                  children: _questions[_currentQuestionIndex]
-                      .answers
-                      .asMap()
-                      .entries
-                      .where((entry) => entry.key >= (_questions[_currentQuestionIndex].answers.length / 2).ceil())
-                      .map(
-                        (entry) => Expanded(
-                          child: RadioListTile(
-                            title: Text(
-                              entry.value,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            value: entry.key,
-                            groupValue: _selectedAnswerIndex,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedAnswerIndex = value;
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                      .toList(),
+                SizedBox(height: 10),
+
+
+                //CONTAINER PREGUNTA QUIZ
+                Container(
+                 margin: EdgeInsets.fromLTRB(22, 25, 22, 25),
+                child: Center(
+                  child: Text(
+                    questions[_currentQuestionIndex].text,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
+              ),
+
+              //CUERPO PREGUNTAS 
+                SizedBox(height: 16),
+                Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  padding: EdgeInsets.fromLTRB(22, 0, 22, 0),
+                  mainAxisSpacing: 13,
+                  crossAxisSpacing: 13,
+                  childAspectRatio: 2.3,
+                  children: List.generate(
+                    questions[_currentQuestionIndex].options.length,
+                    (index) {
+                      return ElevatedButton(
+                        onPressed: () => _answerQuestion(index),
+                        child: Text(
+                          questions[_currentQuestionIndex].options[index],
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ), textAlign: TextAlign.center,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blue[300],
+                          onPrimary: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 15,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
               ],
-            ),
-          ),
-          
-
-          //__________________________________________________________________________--
-          MaterialButton(
-            onPressed: () {
-              
-              //VENTANA SELECCIONAR RESPUESTA
-              if (_selectedAnswerIndex == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Selecciona una respuesta', textAlign: TextAlign.center, style: TextStyle(fontSize: 25),),
-                    backgroundColor: Colors.orange,
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-                return;
-              }
-
-              //VENTANA SELECCIONAR RESPUESTA CORRECTA
-              if (_questions[_currentQuestionIndex].correctAnswerIndex ==
-                  _selectedAnswerIndex) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('¡Respuesta correcta!', textAlign: TextAlign.center, style: TextStyle(fontSize: 25),),
-                    backgroundColor: Colors.green,
-                    duration: Duration(milliseconds: 1500),
-                  ),
-                );
-              } 
-              
-              //VENTANA SELECCIONAR RESPUESTA INCORRECTA
-              else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Respuesta incorrecta',textAlign: TextAlign.center, style: TextStyle(fontSize: 25),),
-                    backgroundColor: Colors.red,
-                    duration: Duration(milliseconds: 1500),
-                  ),
-                );
-              }
-              //VENTANA FIN QUIZ
-              setState(() {
-                _selectedAnswerIndex = null;
-                if (_currentQuestionIndex < _questions.length - 1) {
-                  _currentQuestionIndex++;
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Fin del quiz :)', textAlign: TextAlign.center, style: TextStyle(fontSize: 25),),
-                      backgroundColor: Colors.blue,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                  _currentQuestionIndex = 0;
-                }
-              });
-            },
-
-            //BOTON SIGUIENTE 
-            color: Colors.blue,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text('Siguiente', style: TextStyle(fontSize: 25, color: Colors.white),),
-          ),
-
-          //BOTON REINICIAR
-          ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text(
-                      '¿Está seguro de reiniciar la prueba?', textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 25, color: Colors.green),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('No', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _currentQuestionIndex = 0;
-                            _selectedAnswerIndex = null;
-                          });
-                        },
-                        child: Text('Sí', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Text(
-              'Reiniciar',
-              style: TextStyle(fontSize: 25, color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              primary: Color.fromARGB(255, 37, 182, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+            ):
+            
+            //VENTANA FINAL 
+            Center(
+              child: Text(
+                '¡HAS TERMINADO EL QUIZ!',
+                style: TextStyle(fontSize: 24),
               ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }
 
 class Question {
-  final String question;
-  final List<String> answers;
-  final int correctAnswerIndex;
+  final String image;
+  final String text;
+  final List<String> options;
+  final int correctOption;
 
-  Question(this.question, this.answers, this.correctAnswerIndex);
+  Question({
+    required this.image,
+    required this.text,
+    required this.options,
+    required this.correctOption,
+  });
 }
+
+class ResultsPage extends StatelessWidget {
+  final int correctAnswers;
+  final int totalQuestions;
+
+  ResultsPage({
+    required this.correctAnswers,
+    required this.totalQuestions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String message;
+    if (correctAnswers == 0) {
+      message = 'tiene ceguera. No lograste percibir los diferentes números y colores correctamente. \nLe sugerimos ir donde un especialista en oftalmología para realizar un diagnóstico más detallado.';
+    } else if (correctAnswers == totalQuestions) {
+      message = 'no tiene ninguna patología. Su capacidad visual para percibir los colores se encuentra en óptimas condiciones.';
+    } else {
+      message = 'tiene Discromatopsia Congénita en los colores rojo y verde. Esta patología es el resultado de la alteración en uno o más foto pigmentos de los conos oculares.\nLe sugerimos ir donde un especialista en oftalmología para realizar un diagnóstico más detallado.';
+    }
+    return Scaffold(
+
+      //APP BAR DIAGNOSTICO
+      appBar: AppBar(
+        title: Text(
+          'RESULTADOS',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Color.fromRGBO(243,196,140,30),
+      ),
+
+      //CUERPO DIAGNOSTICO
+      body: Center(
+        
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            
+            Container(
+              margin: EdgeInsets.fromLTRB(50, 10, 50, 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                ),
+              child: Image(
+                image: AssetImage('assets/images/diagnostico.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Color.fromRGBO(243,196,140,30),
+              ),
+              padding: EdgeInsets.all(5),
+              margin: EdgeInsets.all(5),
+              child: Text(
+                'Respuestas correctas: $correctAnswers de $totalQuestions',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            
+            SizedBox(height: 20),
+            Container(
+             margin: EdgeInsets.fromLTRB(5, 0, 10, 5),
+              child: Text(
+                '¡Tenemos tu diagnostico!',
+                style: TextStyle(                
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.green,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.green[100],
+              ),
+              padding: EdgeInsets.all(10),
+             margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Text(
+                'Ya analizamos tus respuestas y le informamos que usted  $message',
+                style: TextStyle(                
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.justify,
+              ),
+            ),
+
+            SizedBox(height: 0),
+              GestureDetector(
+                onTap: () {
+                Navigator.pop(context);
+              },
+              child: IconButton(
+                icon: Icon(Icons.home),
+                iconSize: 70,
+                color: Colors.blue[300],
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
